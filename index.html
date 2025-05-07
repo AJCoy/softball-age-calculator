@@ -73,55 +73,53 @@
     <button onclick="calculateDivision()">Check Age Division</button>
     <div id="result"></div>
   </div>
-  <script>
+ <script>
     function calculateDivision() {
-  const season = document.getElementById("season").value;
-  const year = parseInt(document.getElementById("year").value);
-  const birthdate = new Date(document.getElementById("birthdate").value);
+      const birthdate = new Date(document.getElementById("birthdate").value);
+      const season = document.getElementById("season").value;
+      const year = parseInt(document.getElementById("year").value);
 
-  // JO Age cutoff is August 31 of the year before the selected season
-  const cutoffDate = new Date(`${year - 1}-08-31`);
+      if (!birthdate || isNaN(year)) {
+        document.getElementById("result").textContent = "Please enter a valid birthdate and year.";
+        return;
+      }
 
-  let age = cutoffDate.getFullYear() - birthdate.getFullYear();
-  const bMonth = birthdate.getMonth();
-  const bDay = birthdate.getDate();
+      // USA Softball cutoff date: August 31
+      const cutoffYear = season === "Spring" ? year - 1 : year;
+      const cutoffDate = new Date(`${cutoffYear}-08-31`);
 
-  if (
-    bMonth > cutoffDate.getMonth() ||
-    (bMonth === cutoffDate.getMonth() && bDay > cutoffDate.getDate())
-  ) {
-    age--;
-  }
+      let age = cutoffDate.getFullYear() - birthdate.getFullYear();
+      if (
+        birthdate.getMonth() > cutoffDate.getMonth() ||
+        (birthdate.getMonth() === cutoffDate.getMonth() && birthdate.getDate() > cutoffDate.getDate())
+      ) {
+        age--;
+      }
 
-  let division;
-  let message;
+      let division;
+      if (age < 4) {
+        division = "Not eligible (under 4 years old)";
+      } else if (age <= 6) {
+        division = "6U";
+      } else if (age <= 8) {
+        division = "8U";
+      } else if (age <= 10) {
+        division = "10U";
+      } else if (age <= 12) {
+        division = "12U";
+		} else if (age <= 14) {
+        division = "14U";
+      } else if (age <= 15) {
+        division = "15U";
+      } else {
+        division = "Not eligible (over 15 years old)";
+      }
 
-  if (age < 4) {
-    division = null;
-    message = `For the ${season} ${year} season, the player is not eligible (must be at least 4 years old).`;
-  } else if (age <= 6) {
-    division = "6U";
-  } else if (age <= 8) {
-    division = "8U";
-  } else if (age <= 10) {
-    division = "10U";
-  } else if (age <= 12) {
-    division = "12U";
-  } else if (age <= 15) {
-    division = "15U";
-  } else {
-    division = null;
-    message = `For the ${season} ${year} season, the player is not eligible (must be 15 or younger).`;
-  }
-
-  if (division) {
-    message = `For the ${season} ${year} season, the player will be in: ${division}`;
-  }
-
-  document.getElementById("result").textContent = message;
-}
-
-document.getElementById("result").textContent = message;
+      if (division.includes("Not eligible")) {
+        document.getElementById("result").textContent = `For the ${season} ${year} season, the player is ${division}.`;
+      } else {
+        document.getElementById("result").textContent = `For the ${season} ${year} season, the player will be in: ${division}.`;
+      }
     }
   </script>
 </body>
