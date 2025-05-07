@@ -1,109 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CGSA Softball Age Division Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 2em;
-      max-width: 600px;
-      margin: auto;
-      text-align: center;
-    }
-    label, select, input {
-      font-size: 1em;
-      margin: 0.5em;
-      padding: 0.4em;
-    }
-    button {
-      margin-top: 1em;
-      padding: 0.6em 1.2em;
-      font-size: 1em;
-      background-color: #003366;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 1.5em;
-      font-weight: bold;
-      font-size: 1.2em;
-      color: #003366;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGSA Softball Age Division Calculator</title>
+    <style>
+      body, html {
+        height: 100%;
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 450px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      h2 {
+        color: #013180;
+      }
+      label {
+        color: #555;
+        font-size: 16px;
+        margin: 15px 0 5px;
+        display: block;
+      }
+      select, input[type="date"], input[type="number"] {
+        width: calc(100% - 24px);
+        padding: 12px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        margin-top: 5px;
+      }
+      button {
+        width: 100%;
+        background-color: #C8102E;
+        color: white;
+        padding: 15px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+      button:hover {
+        background-color: #b00e26;
+      }
+      #result {
+        margin-top: 20px;
+        color: #013180;
+        font-weight: bold;
+      }
+    </style>
 </head>
 <body>
-  <h2>CGSA Softball Age Division Calculator</h2>
-  <p>Select a season and enter your child's birthdate:</p>
-
-  <label for="season">Season:</label>
-  <select id="season">
-    <option value="Spring">Spring</option>
-    <option value="Fall">Fall</option>
-  </select>
-
-  <label for="year">Year:</label>
-  <input type="number" id="year" min="2020" max="2100" value="2025" />
-
-  <br>
-
-  <label for="birthdate">Birthdate:</label>
-  <input type="date" id="birthdate" />
-
-  <br>
-
-  <button onclick="calculateDivision()">Check Age Division</button>
-
-  <div class="result" id="result"></div>
-
+  <div class="container">
+    <h2>CGSA Softball Age Division Calculator</h2>
+    <p>Select a season and enter your child's birthdate:</p>
+    <label for="season">Season:</label>
+    <select id="season">
+      <option value="Spring">Spring</option>
+      <option value="Fall">Fall</option>
+    </select>
+    <label for="year">Year:</label>
+    <input type="number" id="year" min="2020" max="2100" value="2025">
+    <label for="birthdate">Birthdate:</label>
+    <input type="date" id="birthdate">
+    <button onclick="calculateDivision()">Check Age Division</button>
+    <div id="result"></div>
+  </div>
   <script>
     function calculateDivision() {
       const season = document.getElementById("season").value;
-      const seasonYear = parseInt(document.getElementById("year").value);
-      const birthdateInput = document.getElementById("birthdate").value;
-      const result = document.getElementById("result");
+      const year = parseInt(document.getElementById("year").value);
+      const birthdateStr = document.getElementById("birthdate").value;
 
-      if (!birthdateInput) {
-        result.textContent = "Please enter a birthdate.";
+      if (!birthdateStr) {
+        document.getElementById("result").textContent = "Please enter a birthdate.";
         return;
       }
 
-      const birthdate = new Date(birthdateInput);
-      const cutoff = new Date(`${seasonYear}-08-31`);
-      let age = cutoff.getFullYear() - birthdate.getFullYear();
+      const birthdate = new Date(birthdateStr);
+      let cutoffYear = season === "Fall" ? year : year - 1;
+      const cutoffDate = new Date(`${cutoffYear}-08-31`);
 
-      if (
-        birthdate.getMonth() > cutoff.getMonth() ||
-        (birthdate.getMonth() === cutoff.getMonth() && birthdate.getDate() > cutoff.getDate())
-      ) {
+      let age = cutoffDate.getFullYear() - birthdate.getFullYear();
+      if (birthdate > new Date(cutoffDate.getFullYear(), 7, 31)) {
         age--;
       }
 
-      let division = "";
-      if (age < 4) {
-        division = "Player does not meet age requirments for CGSA divisions";
-      } else if (age <= 6) {
-        division = "your child will be in the 6U division.";
-      } else if (age <= 8) {
-        division = "your child will be in the 8U division.";
-      } else if (age <= 10) {
-        division = "your child will be in the 10U division.";
-      } else if (age <= 12) {
-        division = "your child will be in the 12U division.";
-      } else if (age <= 14) {
-        division = "your child will be in the 14U division.";
-      } else if (age <= 15) {
-        division = "your child will be in the 15U division.";
-      } else {
-        division = "Player does not meet age requirments for CGSA divisions";
-      }
+      let division;
+let message;
 
-      result.textContent = `For the ${season} ${seasonYear} season, ${division}`;
+if (age < 4) {
+  division = null;
+  message = `For the ${season} ${year} season, the player is not eligible (must be at least 4 years old).`;
+} else if (age <= 6) {
+  division = "6U";
+} else if (age <= 8) {
+  division = "8U";
+} else if (age <= 10) {
+  division = "10U";
+} else if (age <= 12) {
+  division = "12U";
+} else if (age <= 15) {
+  division = "15U";
+} else {
+  division = null;
+  message = `For the ${season} ${year} season, the player is not eligible (must be 15 or younger).`;
+}
+
+if (division) {
+  message = `For the ${season} ${year} season, the player will be in: ${division}`;
+}
+
+document.getElementById("result").textContent = message;
     }
   </script>
 </body>
 </html>
-
